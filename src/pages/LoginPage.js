@@ -9,7 +9,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -38,18 +38,27 @@ export default function LoginPage() {
       setError({ ...error, password: "Password is required" });
       return;
     }
+    setLoading(true);
     await axios
       .post(`${process.env.REACT_APP_BASEURL}/user/signin`, {
         emailid: email,
         password: password,
       })
       .then((res) => {
-        console.log(res.data);
         setLocalStorage("user", res.data);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setLoading(false);
+        alert("Signin success!");
+      });
   };
-  console.log(user);
+
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, [loading]);
   return (
     <Container
       maxWidth="lg"
@@ -63,13 +72,13 @@ export default function LoginPage() {
         {!isXs && (
           <Grid item xs={12} sm={6} sx={{ backgroundColor: "gray" }}></Grid>
         )}
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={6} height={"80vh"}>
           <Stack
             direction="column"
             justifyContent="center"
             alignItems="center"
             spacing={2}
-            sx={{ height: "100%", p: 4 }}
+            sx={{ height: "auto", p: 4 }}
           >
             <Typography variant="h6" fontWeight="600">
               ChatMe
@@ -224,6 +233,18 @@ export default function LoginPage() {
             >
               Continue
             </Button>
+            <Typography variant="body2">
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
+                style={{
+                  textDecoration: "none",
+                  fontWeight: "600",
+                }}
+              >
+                Sign up
+              </Link>
+            </Typography>
           </Stack>
         </Grid>
       </Grid>

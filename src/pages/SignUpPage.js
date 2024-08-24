@@ -48,7 +48,8 @@ export default function SignUpPage() {
         name: name,
       })
       .then((res) => {
-        console.log(res);
+        alert("sign up success!");
+        navigate("/");
       })
       .catch((err) => {
         console.log(err);

@@ -85,7 +85,7 @@ const ChatUi = ({ id }) => {
                 >
                   <Paper
                     sx={{
-                      padding: 1,
+                      p: 1,
                       backgroundColor:
                         message.senderId === user.unique_id
                           ? "primary.light"
@@ -109,7 +109,11 @@ const ChatUi = ({ id }) => {
         value={newMessage}
         onChange={(e) => setNewMessage(e.target.value)}
         size="small"
-        sx={{ position: "fixed", bottom: 20, width: "78%" }}
+        sx={{
+          position: "fixed",
+          bottom: 20,
+          width: { sm: "65%", xs: "92%", lg: "78%" },
+        }}
         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Send message on Enter key press
         InputProps={{
           endAdornment: (

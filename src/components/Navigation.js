@@ -1,111 +1,50 @@
 import * as React from "react";
-import { styled, useTheme } from "@mui/material/styles";
+import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
-import { data } from "../constants/NavData";
-import { useNavigate } from "react-router-dom";
-import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import useGetUsers from "../hooks/useGetUsers";
+import MenuIcon from "@mui/icons-material/Menu";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   clearLocalStorage,
   getLocalStorage,
 } from "../constants/LocalStorageData";
-import { Stack } from "@mui/material";
+import useGetUsers from "../hooks/useGetUsers";
+import { ListItemButton, Stack, styled } from "@mui/material";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 const drawerWidth = 240;
-
-const openedMixin = (theme) => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme) => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
   ...theme.mixins.toolbar,
 }));
 
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-  transition: theme.transitions.create(["width", "margin"], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-
 export default function Navigation() {
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(true);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
   const user = getLocalStorage("user");
 
   const { users } = useGetUsers(user?.unique_id);
+  const location = useLocation();
+
+  const [selectedUserId, setselectedUserId] = React.useState(null);
+  const [selectedMember, setSelectedMember] = React.useState({});
 
   const handleDrawerToggle = () => {
-    //setOpen(!open);
+    setMobileOpen(!mobileOpen);
   };
 
   const handleLogOut = () => {
@@ -113,62 +52,38 @@ export default function Navigation() {
     navigate("/");
   };
 
-  return (
-    <Box>
-      <CssBaseline />
-      <AppBar
-        position="fixed"
-        open={open}
-        elevation={0}
-        sx={{ backgroundColor: "#ffffff", color: "black" }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
-            edge="start"
-            sx={{
-              marginRight: 5,
-              ...(open && { display: "none" }),
-            }}
-          >
-            <LinkedInIcon />
-          </IconButton>
-          <Stack direction={"row"} gap={2}>
-            <img
-              src={process.env.REACT_APP_DEFAULT_IMG}
-              alt="peofile"
-              width={30}
-              height={30}
-              style={{ alignSelf: "center" }}
-            />
-            <ListItemText
-              sx={{ alignSelf: "center" }}
-              primary={user?.user_name}
-            />
-          </Stack>
-          <Box flexGrow={1} />
-          <IconButton onClick={handleLogOut}>
-            <LogoutIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-      <Drawer variant="permanent" open={open} color="black">
-        <DrawerHeader
-          sx={{
-            alignSelf: "flex-start",
-          }}
-        >
-          <IconButton onClick={handleDrawerToggle}>
-            <LinkedInIcon color="black" />
-            {open && <Typography pl={2}>ChatMe</Typography>}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
+  const handleUserClicked = (val) => {
+    setSelectedMember(val);
+    setselectedUserId(val?.unique_id);
+    navigate(`/message/${val?.unique_id}?user=${val?.unique_id}`);
+  };
 
-        <List>
-          {/* {data?.map((val, index) => (
+  React.useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const user = queryParams.get("user");
+    if (user) {
+      setselectedUserId(user);
+    }
+  }, [location.search]);
+
+  const drawer = (
+    <div>
+      <DrawerHeader
+        sx={{
+          alignSelf: "flex-start",
+        }}
+      >
+        <Stack direction={"row"} spacing={1.5} pl={2}>
+          <LinkedInIcon
+            color="black"
+            sx={{ alignSelf: "center", width: 25, height: 25 }}
+          />
+          <Typography sx={{ alignSelf: "center" }}>ChatMe</Typography>
+        </Stack>
+      </DrawerHeader>
+      <Divider />
+      <List sx={{ pl: 1, pr: 1 }}>
+        {/* {data?.map((val, index) => (
             <ListItem
               key={index}
               disablePadding
@@ -198,67 +113,155 @@ export default function Navigation() {
               </ListItemButton>
             </ListItem>
           ))} */}
-          {users?.map((val, index) => (
-            <ListItem
-              key={index}
-              disablePadding
-              sx={{ display: "block" }}
-              onClick={() => navigate(`/message/${val?.unique_id}`)}
+        {users?.map((val, index) => (
+          <ListItem
+            key={index}
+            disablePadding
+            sx={{
+              // display: "block",
+              backgroundColor:
+                selectedUserId == val?.unique_id ? "#e6e6e6" : "white",
+            }}
+            onClick={() => handleUserClicked(val)}
+          >
+            <ListItemButton
+              sx={{
+                minHeight: 48,
+                //justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
             >
-              <ListItemButton
+              <ListItemIcon
                 sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
+                  minWidth: 0,
+                  //  mr: open ? 3 : "auto",
+                  justifyContent: "center",
                 }}
               >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  <img
-                    src={process.env.REACT_APP_DEFAULT_IMG}
-                    alt="peofile"
-                    width={25}
-                  />
-                </ListItemIcon>
-                <ListItemText
-                  primary={val?.username}
-                  sx={{ opacity: open ? 1 : 0 }}
+                <img
+                  src={process.env.REACT_APP_DEFAULT_IMG}
+                  alt="peofile"
+                  width={25}
                 />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-        {/* <Divider />
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: "block" }}>
-              <ListItemButton
+              </ListItemIcon>
+              <ListItemText
+                primary={val?.username}
                 sx={{
-                  minHeight: 48,
-                  justifyContent: open ? "initial" : "center",
-                  px: 2.5,
+                  pl: 2,
+                  fontWeight: selectedUserId == val?.unique_id ? "600" : null,
                 }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : "auto",
-                    justifyContent: "center",
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List> */}
-      </Drawer>
+              />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      {/* <List>
+        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          <ListItem button key={text}>
+            <ListItemIcon>
+              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+            </ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        {["All mail", "Trash", "Spam"].map((text, index) => (
+          <ListItem button key={text}>
+            <ListItemIcon>
+              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+            </ListItemIcon>
+            <ListItemText primary={text} />
+          </ListItem>
+        ))}
+      </List> */}
+    </div>
+  );
+
+  // const container =
+  //   window !== undefined ? () => window().document.body : undefined;
+
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          backgroundColor: "#ffffff",
+          color: "black",
+        }}
+        elevation={0}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Stack direction={"row"} gap={2}>
+            <img
+              src={process.env.REACT_APP_DEFAULT_IMG}
+              alt="peofile"
+              width={30}
+              height={30}
+              style={{ alignSelf: "center" }}
+            />
+            <ListItemText
+              sx={{ alignSelf: "center" }}
+              primary={selectedMember?.username || user?.user_name}
+            />
+          </Stack>
+          <Box flexGrow={1} />
+          <IconButton onClick={handleLogOut}>
+            <LogoutIcon />
+          </IconButton>
+        </Toolbar>
+      </AppBar>
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="mailbox folders"
+      >
+        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+        <Drawer
+          //container={container}
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Better open performance on mobile.
+          }}
+          sx={{
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
     </Box>
   );
 }
