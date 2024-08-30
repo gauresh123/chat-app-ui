@@ -17,6 +17,7 @@ import {
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import useSocketContext from "../context/SocketContext";
+import { urlify } from "../constants/Urlify";
 
 const ChatUi = ({ id }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -117,7 +118,9 @@ const ChatUi = ({ id }) => {
                           : "grey.300",
                     }}
                   >
-                    <Typography variant="body1">{message.text}</Typography>
+                    <Typography variant="body1">
+                      {urlify(message.text)}
+                    </Typography>
                   </Paper>
                 </ListItem>
               );

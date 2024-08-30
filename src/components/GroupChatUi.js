@@ -16,6 +16,7 @@ import SendIcon from "@mui/icons-material/Send";
 import { io } from "socket.io-client";
 import { getLocalStorage } from "../constants/LocalStorageData";
 import { Link } from "react-router-dom";
+import { urlify } from "../constants/Urlify";
 
 const GroupChatUi = ({ id }) => {
   const socket = useMemo(() => io(process.env.REACT_APP_SOCETURL), []);
@@ -60,20 +61,6 @@ const GroupChatUi = ({ id }) => {
       });
     }
     setNewMessage("");
-  };
-
-  const urlify = (text) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.split(urlRegex).map((part, index) => {
-      if (part.match(urlRegex)) {
-        return (
-          <Link key={index} target="_blank" to={part} rel="noopener noreferrer">
-            {part}
-          </Link>
-        );
-      }
-      return part;
-    });
   };
 
   return (
