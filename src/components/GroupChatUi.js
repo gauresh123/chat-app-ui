@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Paper,
@@ -15,6 +15,7 @@ import SendIcon from "@mui/icons-material/Send";
 
 import { io } from "socket.io-client";
 import { getLocalStorage } from "../constants/LocalStorageData";
+import { Link } from "react-router-dom";
 
 const GroupChatUi = ({ id }) => {
   const socket = useMemo(() => io(process.env.REACT_APP_SOCETURL), []);
@@ -22,6 +23,7 @@ const GroupChatUi = ({ id }) => {
   const user = getLocalStorage("user");
   const [newMessage, setNewMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     // Listen for new messages in the current group
@@ -40,7 +42,13 @@ const GroupChatUi = ({ id }) => {
     };
   }, [id]);
 
-  console.log(messages, "messages");
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSend = () => {
     if (newMessage.trim()) {
@@ -52,6 +60,20 @@ const GroupChatUi = ({ id }) => {
       });
     }
     setNewMessage("");
+  };
+
+  const urlify = (text) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.split(urlRegex).map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <Link key={index} target="_blank" to={part} rel="noopener noreferrer">
+            {part}
+          </Link>
+        );
+      }
+      return part;
+    });
   };
 
   return (
@@ -66,6 +88,7 @@ const GroupChatUi = ({ id }) => {
           },
           overflow: "auto",
         }}
+        className="hide-scrollbar"
       >
         <List>
           {messages?.map((message, index) => {
@@ -96,7 +119,9 @@ const GroupChatUi = ({ id }) => {
                       {message.name}
                     </Typography>
                     <br />
-                    <Typography variant="caption">{message.message}</Typography>
+                    <Typography variant="caption">
+                      {urlify(message.message)}
+                    </Typography>
                   </Paper>
                 </ListItem>
               );
@@ -104,6 +129,7 @@ const GroupChatUi = ({ id }) => {
             return null;
           })}
         </List>
+        <div ref={chatEndRef} />
       </Box>
 
       <TextField

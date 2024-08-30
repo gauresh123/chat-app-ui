@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Paper,
@@ -23,6 +23,8 @@ const ChatUi = ({ id }) => {
   const [socketId, setSocketId] = useState("");
   const user = getLocalStorage("user");
   const { setMessages, messages } = useSocketContext();
+
+  const chatEndRef = useRef(null);
 
   const socket = useMemo(
     () => io(process.env.REACT_APP_SOCETURL, { query: { id: user.unique_id } }),
@@ -66,6 +68,14 @@ const ChatUi = ({ id }) => {
     }
   };
 
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <Box width={"100%"}>
       <Box
@@ -73,8 +83,13 @@ const ChatUi = ({ id }) => {
           flexGrow: 1,
           overflow: "auto",
           padding: 2,
-          height: 400,
+          height: {
+            sm: "calc(100vh - 150px)",
+            lg: 400,
+            xs: "calc(100vh - 150px)",
+          },
         }}
+        className="hide-scrollbar"
       >
         <List>
           {messages?.map((message, index) => {
@@ -110,6 +125,7 @@ const ChatUi = ({ id }) => {
             return null;
           })}
         </List>
+        <div ref={chatEndRef} />
       </Box>
 
       <TextField
