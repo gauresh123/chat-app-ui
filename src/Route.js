@@ -17,9 +17,16 @@ const Router = () => {
         <Route path="/home" element={<HomePage />} />
         <Route path="/message/:ID" element={<Messages />} />
         <Route path="/groupchat/:groupId" element={<GroupMessages />} />
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
         <Route path="/audiocall" element={<AudioCall />} />
+
+        {!user ? (
+          <>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+          </>
+        ) : (
+          <Route path="/home" element={<HomePage />} />
+        )}
       </Routes>
     </BrowserRouter>
   );
