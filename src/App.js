@@ -1,10 +1,13 @@
 import React from "react";
 import Router from "./Route";
+import { SocketContextProvider } from "./context/SocketContext";
 
 const App = () => {
   return (
     <div>
-      <Router />
+      <SocketContextProvider>
+        <Router />
+      </SocketContextProvider>
     </div>
   );
 };

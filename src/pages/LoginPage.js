@@ -51,14 +51,11 @@ export default function LoginPage() {
       .finally(() => {
         setLoading(false);
         alert("Signin success!");
+        setTimeout(() => {
+          navigate("/home");
+        }, 10);
       });
   };
-
-  useEffect(() => {
-    if (user) {
-      navigate("/home");
-    }
-  }, [loading]);
   return (
     <Container
       maxWidth="lg"

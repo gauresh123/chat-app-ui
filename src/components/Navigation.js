@@ -20,9 +20,21 @@ import {
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import useGetUsers from "../hooks/useGetUsers";
-import { ListItemButton, Stack, styled } from "@mui/material";
+import { Badge, ListItemButton, Stack, styled } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import LogoutIcon from "@mui/icons-material/Logout";
+import useSocketContext from "../context/SocketContext";
+import { SignalWifiStatusbarNullTwoTone } from "@mui/icons-material";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import GroupsIcon from "@mui/icons-material/Groups";
+import ChatIcon from "@mui/icons-material/Chat";
+import AddIcon from "@mui/icons-material/Add";
+import Group from "./Group";
+import axios from "axios";
+import useGetGroups from "../hooks/useGetGroups";
+import CallIcon from "@mui/icons-material/Call";
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -36,24 +48,34 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
   const user = getLocalStorage("user");
+  const { messages } = useSocketContext();
 
   const { users } = useGetUsers(user?.unique_id);
   const location = useLocation();
 
   const [selectedUserId, setselectedUserId] = React.useState(null);
-  const [selectedMember, setSelectedMember] = React.useState({});
+  const [selectedGroupId, setselectedGroupId] = React.useState(null);
+
+  //const [selectedMember, setSelectedMember] = React.useState({});
+  const [showChats, setShowChats] = React.useState(false);
+  const [openCreateGroup, setOpenCreateGroup] = React.useState(false);
+  const [selectedMembers, setSelectedMembers] = React.useState([]);
+  const [showGroups, setShowGroups] = React.useState(false);
+  const { groups } = useGetGroups(user?.unique_id);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleLogOut = () => {
-    clearLocalStorage();
-    navigate("/");
+  const handleLogOut = async () => {
+    try {
+      await clearLocalStorage();
+    } finally {
+      navigate("/");
+    }
   };
 
   const handleUserClicked = (val) => {
-    setSelectedMember(val);
     setselectedUserId(val?.unique_id);
     navigate(`/message/${val?.unique_id}?user=${val?.unique_id}`);
   };
@@ -61,10 +83,30 @@ export default function Navigation() {
   React.useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const user = queryParams.get("user");
+    const group = queryParams.get("group");
+    if (group) {
+      setselectedGroupId(group);
+      return;
+    }
     if (user) {
       setselectedUserId(user);
+      return;
     }
   }, [location.search]);
+
+  const selectedUser = users?.find((val, i) => val.unique_id == selectedUserId);
+  const selectedGroup = groups?.find(
+    (val, i) => val.groupid == selectedGroupId
+  );
+  console.log(selectedGroup, "group");
+  // React.useEffect(() => {
+  //   const queryParams = new URLSearchParams(location.search);
+  // }, [location.search]);
+
+  const handleGroupClicked = (val) => {
+    setselectedGroupId(val.groupid);
+    navigate(`/groupchat/${val.groupid}?group=${val?.groupid}`);
+  };
 
   const drawer = (
     <div>
@@ -113,47 +155,158 @@ export default function Navigation() {
               </ListItemButton>
             </ListItem>
           ))} */}
-        {users?.map((val, index) => (
-          <ListItem
-            key={index}
-            disablePadding
-            sx={{
-              // display: "block",
-              backgroundColor:
-                selectedUserId == val?.unique_id ? "#e6e6e6" : "white",
-            }}
-            onClick={() => handleUserClicked(val)}
-          >
-            <ListItemButton
-              sx={{
-                minHeight: 48,
+
+        <ListItem onClick={() => setShowChats(!showChats)}>
+          <ListItemButton
+            sx={
+              {
+                // minHeight: 48,
                 //justifyContent: open ? "initial" : "center",
-                px: 2.5,
+                //px: 2.5,
+              }
+            }
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                //  mr: open ? 3 : "auto",
+                // justifyContent: "center",
               }}
             >
-              <ListItemIcon
+              <ChatIcon />
+            </ListItemIcon>
+
+            <ListItemText primary={"Chats"} sx={{ pl: 2 }} />
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                //  mr: open ? 3 : "auto",
+                // justifyContent: "center",
+              }}
+            >
+              {showChats ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+        {showChats && (
+          <>
+            {users?.map((val, index) => (
+              <ListItem
+                key={index}
+                disablePadding
                 sx={{
-                  minWidth: 0,
-                  //  mr: open ? 3 : "auto",
-                  justifyContent: "center",
+                  // display: "block",
+                  backgroundColor:
+                    selectedUserId == val?.unique_id ? "#e6e6e6" : "white",
+                }}
+                onClick={() => handleUserClicked(val)}
+              >
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    //justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      //  mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <img
+                      src={process.env.REACT_APP_DEFAULT_IMG}
+                      alt="peofile"
+                      width={25}
+                    />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={val?.username}
+                    sx={{
+                      pl: 2,
+                      fontWeight:
+                        selectedUserId == val?.unique_id ? "600" : null,
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </>
+        )}
+
+        <ListItem onClick={() => setShowGroups(!showGroups)}>
+          <ListItemButton
+            sx={
+              {
+                // minHeight: 48,
+                //justifyContent: open ? "initial" : "center",
+                //px: 2.5,
+              }
+            }
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                //  mr: open ? 3 : "auto",
+                // justifyContent: "center",
+              }}
+            >
+              <GroupsIcon />
+            </ListItemIcon>
+
+            <ListItemText primary={"Groups"} sx={{ pl: 2 }} />
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                //  mr: open ? 3 : "auto",
+                // justifyContent: "center",
+              }}
+            >
+              {showGroups ? <ArrowDropDownIcon /> : <ArrowDropUpIcon />}
+            </ListItemIcon>
+          </ListItemButton>
+        </ListItem>
+
+        {showGroups && (
+          <>
+            {groups?.map((val, index) => (
+              <ListItem
+                key={index}
+                disablePadding
+                onClick={() => handleGroupClicked(val)}
+                sx={{
+                  backgroundColor:
+                    selectedGroupId == val?.groupid ? "#e6e6e6" : "white",
                 }}
               >
-                <img
-                  src={process.env.REACT_APP_DEFAULT_IMG}
-                  alt="peofile"
-                  width={25}
-                />
-              </ListItemIcon>
-              <ListItemText
-                primary={val?.username}
-                sx={{
-                  pl: 2,
-                  fontWeight: selectedUserId == val?.unique_id ? "600" : null,
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-        ))}
+                <ListItemButton
+                  sx={{
+                    minHeight: 48,
+                    //justifyContent: open ? "initial" : "center",
+                    px: 2.5,
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: 0,
+                      //  mr: open ? 3 : "auto",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <GroupsIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={val?.groupname}
+                    sx={{
+                      pl: 2,
+                    }}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </>
+        )}
       </List>
       {/* <List>
         {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
@@ -196,6 +349,15 @@ export default function Navigation() {
         elevation={0}
       >
         <Toolbar>
+          {/* <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton> */}
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -205,6 +367,7 @@ export default function Navigation() {
           >
             <MenuIcon />
           </IconButton>
+
           <Stack direction={"row"} gap={2}>
             <img
               src={process.env.REACT_APP_DEFAULT_IMG}
@@ -213,14 +376,45 @@ export default function Navigation() {
               height={30}
               style={{ alignSelf: "center" }}
             />
+
             <ListItemText
               sx={{ alignSelf: "center" }}
-              primary={selectedMember?.username || user?.user_name}
+              primary={
+                selectedUser?.username ||
+                selectedGroup?.groupname ||
+                user?.user_name
+              }
             />
           </Stack>
           <Box flexGrow={1} />
+
+          {selectedUser && (
+            <IconButton
+              onClick={() =>
+                navigate(`/audiocall?to=${selectedUser?.unique_id}`)
+              }
+            >
+              <CallIcon />
+            </IconButton>
+          )}
+
+          {/* 
+          <IconButton>
+            <Badge
+              badgeContent={messages?.length}
+              color="primary"
+              invisible={messages?.some(
+                (el) => el.receiverId !== user?.unique_id
+              )}
+            >
+              <NotificationsIcon />
+            </Badge>
+          </IconButton> */}
           <IconButton onClick={handleLogOut}>
             <LogoutIcon />
+          </IconButton>
+          <IconButton onClick={() => setOpenCreateGroup(!openCreateGroup)}>
+            <AddIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -262,6 +456,13 @@ export default function Navigation() {
           {drawer}
         </Drawer>
       </Box>
+      <Group
+        users={users}
+        openCreateGroup={openCreateGroup}
+        onClose={() => setOpenCreateGroup(false)}
+        selectedMembers={selectedMembers}
+        setSelectedMembers={setSelectedMembers}
+      />
     </Box>
   );
 }

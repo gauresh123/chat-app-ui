@@ -9,61 +9,49 @@ import {
   Typography,
   IconButton,
   InputAdornment,
+  Stack,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+
 import { io } from "socket.io-client";
-import {
-  clearLocalStorage,
-  getLocalStorage,
-} from "../constants/LocalStorageData";
-import useSocketContext from "../context/SocketContext";
+import { getLocalStorage } from "../constants/LocalStorageData";
 
-const ChatUi = ({ id }) => {
-  const [newMessage, setNewMessage] = useState("");
-  const [socketId, setSocketId] = useState("");
+const GroupChatUi = ({ id }) => {
+  const socket = useMemo(() => io(process.env.REACT_APP_SOCETURL), []);
+
   const user = getLocalStorage("user");
-  const { setMessages, messages } = useSocketContext();
-
-  const socket = useMemo(
-    () => io(process.env.REACT_APP_SOCETURL, { query: { id: user.unique_id } }),
-    []
-  );
+  const [newMessage, setNewMessage] = useState("");
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
+    // Listen for new messages in the current group
     socket.on("connect", () => {
-      setSocketId(socket.id);
+      console.log(socket.id);
     });
-    socket.on("receiveMessage", (messageData) => {
-      setMessages((prevMessages) => [...prevMessages, messageData]);
+
+    socket.emit("joinGroup", id);
+
+    socket.on("newMessage", (message) => {
+      setMessages((prev) => [...prev, message]);
     });
+
     return () => {
-      socket.off("receiveMessage");
+      socket.off("newMessage");
     };
-  }, [user?.unique_id, id]);
-  const handleSendMessage = () => {
-    try {
-      if (newMessage.trim()) {
-        socket.emit("sendMessage", {
-          senderId: user.unique_id,
-          receiverId: id,
-          message: newMessage,
-          socketId: socketId,
-        });
-        // setMessages([
-        //   ...messages,
-        //   {
-        //     text: newMessage,
-        //     senderId: user.unique_id,
-        //     timestamp: new Date(),
-        //     receiverId: id,
-        //   },
-        // ]);
-      }
-    } catch {
-      //
-    } finally {
-      setNewMessage("");
+  }, [id]);
+
+  console.log(messages, "messages");
+
+  const handleSend = () => {
+    if (newMessage.trim()) {
+      socket.emit("send", {
+        groupId: id,
+        senderId: user.unique_id,
+        message: newMessage,
+        name: user.user_name,
+      });
     }
+    setNewMessage("");
   };
 
   return (
@@ -71,18 +59,17 @@ const ChatUi = ({ id }) => {
       <Box
         sx={{
           flexGrow: 1,
+          height: {
+            sm: "calc(100vh - 150px)",
+            lg: 400,
+            xs: "calc(100vh - 150px)",
+          },
           overflow: "auto",
-          padding: 2,
-          height: 400,
         }}
       >
         <List>
           {messages?.map((message, index) => {
-            if (
-              (message.senderId === user.unique_id ||
-                message.receiverId === user.unique_id) &&
-              (message.senderId === id || message.receiverId === id)
-            ) {
+            if (message.groupId == id) {
               return (
                 <ListItem
                   key={index}
@@ -95,14 +82,21 @@ const ChatUi = ({ id }) => {
                 >
                   <Paper
                     sx={{
-                      p: 1,
                       backgroundColor:
                         message.senderId === user.unique_id
                           ? "primary.light"
-                          : "grey.300",
+                          : "grey.200",
+                      pl: 1,
+                      pr: 1,
+                      pt: 0.5,
+                      pb: 0.5,
                     }}
                   >
-                    <Typography variant="body1">{message.text}</Typography>
+                    <Typography variant="caption" fontWeight={"700"}>
+                      {message.name}
+                    </Typography>
+                    <br />
+                    <Typography variant="caption">{message.message}</Typography>
                   </Paper>
                 </ListItem>
               );
@@ -124,11 +118,11 @@ const ChatUi = ({ id }) => {
           bottom: 20,
           width: { sm: "65%", xs: "92%", lg: "78%" },
         }}
-        onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Send message on Enter key press
+        onKeyDown={(e) => e.key === "Enter" && handleSend()} // Send message on Enter key press
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              <IconButton onClick={handleSendMessage} color="primary">
+              <IconButton onClick={handleSend} color="primary">
                 <SendIcon />
               </IconButton>
             </InputAdornment>
@@ -139,4 +133,4 @@ const ChatUi = ({ id }) => {
   );
 };
 
-export default ChatUi;
+export default GroupChatUi;
