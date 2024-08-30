@@ -7,6 +7,7 @@ import SignUpPage from "./pages/SignUpPage";
 import { getLocalStorage } from "./constants/LocalStorageData";
 import GroupMessages from "./pages/GroupMessages";
 import AudioCall from "./pages/AudioCall";
+import ProtectedRoute from "./constants/ProtectedRoute";
 
 const Router = () => {
   const user = getLocalStorage("user");
@@ -14,19 +15,41 @@ const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/message/:ID" element={<Messages />} />
-        <Route path="/groupchat/:groupId" element={<GroupMessages />} />
-        <Route path="/audiocall" element={<AudioCall />} />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/message/:ID"
+          element={
+            <ProtectedRoute>
+              <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groupchat/:groupId"
+          element={
+            <ProtectedRoute>
+              <GroupMessages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/audiocall"
+          element={
+            <ProtectedRoute>
+              <AudioCall />
+            </ProtectedRoute>
+          }
+        />
 
-        {!user ? (
-          <>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
-          </>
-        ) : (
-          <Route path="/home" element={<HomePage />} />
-        )}
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Routes>
     </BrowserRouter>
   );
