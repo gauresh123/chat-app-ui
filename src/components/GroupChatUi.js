@@ -69,9 +69,9 @@ const GroupChatUi = ({ id }) => {
         sx={{
           flexGrow: 1,
           height: {
-            sm: "calc(100vh - 150px)",
+            sm: "calc(100vh - 120px)",
             lg: 400,
-            xs: "calc(100vh - 150px)",
+            xs: "calc(100vh - 120px)",
           },
           overflow: "auto",
         }}
