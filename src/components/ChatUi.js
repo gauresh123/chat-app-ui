@@ -43,14 +43,14 @@ const ChatUi = ({ id }) => {
       socket.off("receiveMessage");
     };
   }, [user?.unique_id, id]);
+
   const handleSendMessage = () => {
     try {
       if (newMessage.trim()) {
         socket.emit("sendMessage", {
-          senderId: user.unique_id,
-          receiverId: id,
+          senderid: user.unique_id,
+          receiverid: id,
           message: newMessage,
-          socketId: socketId,
         });
         // setMessages([
         //   ...messages,
@@ -76,7 +76,7 @@ const ChatUi = ({ id }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
+  console.log(messages);
   return (
     <Box width={"100%"}>
       <Box
@@ -95,16 +95,16 @@ const ChatUi = ({ id }) => {
         <List>
           {messages?.map((message, index) => {
             if (
-              (message.senderId === user.unique_id ||
-                message.receiverId === user.unique_id) &&
-              (message.senderId === id || message.receiverId === id)
+              (message.senderid === user.unique_id ||
+                message.receiverid === user.unique_id) &&
+              (message.senderid === id || message.receiverid === id)
             ) {
               return (
                 <ListItem
                   key={index}
                   sx={{
                     justifyContent:
-                      message.senderId === user.unique_id
+                      message.senderid === user.unique_id
                         ? "flex-end"
                         : "flex-start",
                   }}
@@ -113,7 +113,7 @@ const ChatUi = ({ id }) => {
                     sx={{
                       p: 1,
                       backgroundColor:
-                        message.senderId === user.unique_id
+                        message.senderid === user.unique_id
                           ? "primary.light"
                           : "grey.300",
                     }}

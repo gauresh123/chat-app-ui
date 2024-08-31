@@ -77,6 +77,7 @@ export default function Navigation() {
 
   const handleUserClicked = (val) => {
     setselectedUserId(val?.unique_id);
+    setMobileOpen(false);
     navigate(`/message/${val?.unique_id}?user=${val?.unique_id}`);
   };
 
@@ -98,7 +99,7 @@ export default function Navigation() {
   const selectedGroup = groups?.find(
     (val, i) => val.groupid == selectedGroupId
   );
-  console.log(selectedGroup, "group");
+
   // React.useEffect(() => {
   //   const queryParams = new URLSearchParams(location.search);
   // }, [location.search]);
