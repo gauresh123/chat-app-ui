@@ -56,6 +56,12 @@ export default function LoginPage() {
         }, 10);
       });
   };
+
+  useEffect(() => {
+    if (user) {
+      navigate("/home");
+    }
+  }, []);
   return (
     <Container
       maxWidth="lg"

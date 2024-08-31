@@ -85,9 +85,9 @@ const ChatUi = ({ id }) => {
           overflow: "auto",
           padding: 2,
           height: {
-            sm: "calc(100vh - 120px)",
-            lg: 400,
-            xs: "calc(100vh - 120px)",
+            sm: "calc(100vh - 190px)",
+            lg: "calc(100vh - 140px)",
+            xs: "calc(100vh - 190px)",
           },
         }}
         className="hide-scrollbar"
@@ -139,8 +139,8 @@ const ChatUi = ({ id }) => {
         onChange={(e) => setNewMessage(e.target.value)}
         size="small"
         sx={{
-          position: "fixed",
-          bottom: 20,
+          position: { sm: "fixed", xs: "relative" },
+          bottom: { sm: 20, xs: "initial" },
           width: { sm: "65%", xs: "92%", lg: "78%" },
         }}
         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Send message on Enter key press

@@ -87,65 +87,6 @@ export default function SignUpPage() {
               Welcome to ChatMe
             </Typography>
 
-            {/* 
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{
-                textTransform: "none",
-                color: "black",
-                borderColor: "grey.300",
-                "&:hover": { borderColor: "grey.400" },
-                height: "40px",
-              }}
-              onClick={() =>
-                (window.location.href = `${TALENTINO_BACKEND_URL}/login/auth/google`)
-              }
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <img
-                  src={GoogleIcon}
-                  alt="Google"
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
-                Continue with Google
-              </Box>
-            </Button> */}
-            {/* 
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{
-                textTransform: "none",
-                color: "black",
-                borderColor: "grey.300",
-                "&:hover": { borderColor: "grey.400" },
-                height: "40px",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: "100%",
-                }}
-              >
-                <img
-                  src={LinkedInIcon}
-                  alt="LinkedIn"
-                  style={{ width: 20, height: 20, marginRight: 8 }}
-                />
-                Sign in with LinkedIn
-              </Box>
-            </Button> */}
             <Typography
               variant="body2"
               color="text.secondary"
@@ -155,7 +96,7 @@ export default function SignUpPage() {
             </Typography>
             <TextField
               fullWidth
-              placeholder="Enter your company email"
+              placeholder="Enter your name"
               variant="outlined"
               size="small"
               sx={{
@@ -190,7 +131,7 @@ export default function SignUpPage() {
             </Typography>
             <TextField
               fullWidth
-              placeholder="Enter your company email"
+              placeholder="Enter your email"
               variant="outlined"
               size="small"
               sx={{
@@ -225,7 +166,7 @@ export default function SignUpPage() {
             </Typography>
             <TextField
               fullWidth
-              placeholder="Enter your company email"
+              placeholder="Enter your password"
               variant="outlined"
               size="small"
               sx={{
