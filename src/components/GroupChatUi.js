@@ -106,7 +106,13 @@ const GroupChatUi = ({ id }) => {
                       {message.name}
                     </Typography>
                     <br />
-                    <Typography variant="caption">
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        wordBreak: "break-word", // Ensure long words break to the next line
+                        overflowWrap: "break-word", // Ensures wrapping within the box
+                      }}
+                    >
                       {urlify(message.message)}
                     </Typography>
                   </Paper>

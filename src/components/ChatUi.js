@@ -118,7 +118,13 @@ const ChatUi = ({ id }) => {
                           : "grey.300",
                     }}
                   >
-                    <Typography variant="body1">
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        wordBreak: "break-word", // Ensure long words break to the next line
+                        overflowWrap: "break-word", // Ensures wrapping within the box
+                      }}
+                    >
                       {urlify(message.text)}
                     </Typography>
                   </Paper>
@@ -139,8 +145,8 @@ const ChatUi = ({ id }) => {
         onChange={(e) => setNewMessage(e.target.value)}
         size="small"
         sx={{
-          position: { sm: "fixed", xs: "relative" },
-          bottom: { sm: 20, xs: "initial" },
+          position: "fixed",
+          bottom: 20,
           width: { sm: "65%", xs: "92%", lg: "78%" },
         }}
         onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Send message on Enter key press
