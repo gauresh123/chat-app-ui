@@ -18,12 +18,17 @@ import {
 } from "../constants/LocalStorageData";
 import useSocketContext from "../context/SocketContext";
 import { urlify } from "../constants/Urlify";
+import ImageIcon from "@mui/icons-material/Image";
+import axios from "axios";
 
 const ChatUi = ({ id }) => {
   const [newMessage, setNewMessage] = useState("");
   const [socketId, setSocketId] = useState("");
   const user = getLocalStorage("user");
   const { setMessages, messages } = useSocketContext();
+  const [oldMsgs, setOldMsgs] = useState([]);
+  const [img, setImg] = useState(null);
+  const fileInputRef = useRef(null);
 
   const chatEndRef = useRef(null);
 
@@ -44,7 +49,24 @@ const ChatUi = ({ id }) => {
     };
   }, [user?.unique_id, id]);
 
-  const handleSendMessage = () => {
+  useEffect(() => {
+    (async () => {
+      const res = await axios.post(
+        `${process.env.REACT_APP_BASEURL}/message/getMessage`,
+        {
+          senderId: user.unique_id,
+          receiverId: id,
+        }
+      );
+      const data = res?.data?.data[0]?.text ? res?.data?.data[0]?.text : [];
+      setOldMsgs(data);
+    })();
+  }, []);
+
+  const msgData = [...oldMsgs, ...messages];
+  console.log(msgData, "msg");
+
+  const handleSendMessage = async () => {
     try {
       if (newMessage.trim()) {
         socket.emit("sendMessage", {
@@ -52,6 +74,23 @@ const ChatUi = ({ id }) => {
           receiverid: id,
           message: newMessage,
         });
+
+        const data = {
+          senderid: user.unique_id,
+          receiverid: id,
+          text: newMessage,
+        };
+        await axios
+          .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
+            senderId: user.unique_id,
+            receiverId: id,
+            message:
+              messages.length == 0
+                ? [...oldMsgs, data]
+                : [...oldMsgs, ...messages],
+          })
+          .then((res) => console.log("send"))
+          .catch((err) => console.log(err));
         // setMessages([
         //   ...messages,
         //   {
@@ -69,6 +108,43 @@ const ChatUi = ({ id }) => {
     }
   };
 
+  const handleImageSend = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    const data = {
+      senderid: user.unique_id,
+      receiverid: id,
+      text: newMessage || "",
+      img: URL.createObjectURL(file),
+    };
+
+    if (file) {
+      socket.emit("sendMessage", {
+        senderid: user.unique_id,
+        receiverid: id,
+        message: newMessage || "",
+        img: URL.createObjectURL(file),
+      });
+
+      await axios
+        .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
+          senderId: user.unique_id,
+          receiverId: id,
+          message:
+            messages.length == 0
+              ? [...oldMsgs, data]
+              : [...oldMsgs, ...messages],
+        })
+        .then((res) => console.log("send"))
+        .catch((err) => console.log(err));
+
+      setImg(file);
+    }
+  };
+
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -76,14 +152,16 @@ const ChatUi = ({ id }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
   console.log(messages);
+
   return (
     <Box width={"100%"}>
       <Box
         sx={{
           flexGrow: 1,
           overflow: "auto",
-          padding: 2,
+          // padding: 2,
           height: {
             sm: "calc(100vh - 190px)",
             lg: "calc(100vh - 140px)",
@@ -93,7 +171,7 @@ const ChatUi = ({ id }) => {
         className="hide-scrollbar"
       >
         <List>
-          {messages?.map((message, index) => {
+          {msgData?.map((message, index) => {
             if (
               (message.senderid === user.unique_id ||
                 message.receiverid === user.unique_id) &&
@@ -118,15 +196,29 @@ const ChatUi = ({ id }) => {
                           : "grey.300",
                     }}
                   >
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        wordBreak: "break-word", // Ensure long words break to the next line
-                        overflowWrap: "break-word", // Ensures wrapping within the box
-                      }}
-                    >
-                      {urlify(message.text)}
-                    </Typography>
+                    {message?.text && (
+                      <Typography
+                        variant="body1"
+                        sx={{
+                          wordBreak: "break-word", // Ensure long words break to the next line
+                          overflowWrap: "break-word", // Ensures wrapping within the box
+                        }}
+                      >
+                        {urlify(message.text)}
+                      </Typography>
+                    )}
+
+                    {message.img && (
+                      <Box
+                        component="img"
+                        src={message.img}
+                        alt="sent image"
+                        sx={{
+                          maxWidth: "100%",
+                          borderRadius: 1,
+                        }}
+                      />
+                    )}
                   </Paper>
                 </ListItem>
               );
@@ -156,9 +248,19 @@ const ChatUi = ({ id }) => {
               <IconButton onClick={handleSendMessage} color="primary">
                 <SendIcon />
               </IconButton>
+              <IconButton onClick={handleImageSend} color="primary">
+                <ImageIcon />
+              </IconButton>
             </InputAdornment>
           ),
         }}
+      />
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        ref={fileInputRef}
+        onChange={handleFileChange}
       />
     </Box>
   );

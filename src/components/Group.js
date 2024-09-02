@@ -52,6 +52,8 @@ const Group = ({
     } finally {
       setAddbtnLoading(false);
       alert("success!");
+      setGroupName("");
+      onClose();
     }
   };
 

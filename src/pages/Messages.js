@@ -16,7 +16,7 @@ const Messages = () => {
 
   return (
     <Base>
-      <Container sx={{ mt: 10 }}>
+      <Container sx={{ mt: 7 }}>
         <ChatUi id={ID} />
       </Container>
     </Base>
