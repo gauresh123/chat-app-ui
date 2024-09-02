@@ -27,7 +27,6 @@ const ChatUi = ({ id }) => {
   const user = getLocalStorage("user");
   const { setMessages, messages } = useSocketContext();
   const [oldMsgs, setOldMsgs] = useState([]);
-  const [img, setImg] = useState(null);
   const fileInputRef = useRef(null);
 
   const chatEndRef = useRef(null);
@@ -114,34 +113,41 @@ const ChatUi = ({ id }) => {
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
-    const data = {
-      senderid: user.unique_id,
-      receiverid: id,
-      text: newMessage || "",
-      img: URL.createObjectURL(file),
-    };
 
     if (file) {
-      socket.emit("sendMessage", {
-        senderid: user.unique_id,
-        receiverid: id,
-        message: newMessage || "",
-        img: URL.createObjectURL(file),
-      });
+      const reader = new FileReader();
 
-      await axios
-        .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
-          senderId: user.unique_id,
-          receiverId: id,
-          message:
-            messages.length == 0
-              ? [...oldMsgs, data]
-              : [...oldMsgs, ...messages],
-        })
-        .then((res) => console.log("send"))
-        .catch((err) => console.log(err));
+      reader.onloadend = async () => {
+        const base64String = reader.result;
 
-      setImg(file);
+        const data = {
+          senderid: user.unique_id,
+          receiverid: id,
+          text: newMessage || "",
+          img: base64String,
+        };
+
+        socket.emit("sendMessage", {
+          senderid: user.unique_id,
+          receiverid: id,
+          message: newMessage || "",
+          img: base64String,
+        });
+
+        await axios
+          .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
+            senderId: user.unique_id,
+            receiverId: id,
+            message:
+              messages.length == 0
+                ? [...oldMsgs, data]
+                : [...oldMsgs, ...messages],
+          })
+          .then((res) => console.log("send"))
+          .catch((err) => console.log(err));
+        //  handleSendMessage("", base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
