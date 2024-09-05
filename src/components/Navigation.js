@@ -390,11 +390,7 @@ export default function Navigation() {
           <Box flexGrow={1} />
 
           {selectedUser && (
-            <IconButton
-              onClick={() =>
-                navigate(`/audiocall?to=${selectedUser?.unique_id}`)
-              }
-            >
+            <IconButton onClick={() => navigate(`/audiocall/1s`)}>
               <CallIcon />
             </IconButton>
           )}

@@ -40,7 +40,7 @@ const Router = () => {
           }
         />
         <Route
-          path="/audiocall"
+          path="/audiocall/:Id"
           element={
             <ProtectedRoute>
               <AudioCall />

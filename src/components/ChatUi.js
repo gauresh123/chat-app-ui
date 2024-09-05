@@ -20,6 +20,7 @@ import useSocketContext from "../context/SocketContext";
 import { urlify } from "../constants/Urlify";
 import ImageIcon from "@mui/icons-material/Image";
 import axios from "axios";
+import { getImageBase64, IMGBBuploadImage } from "../constants/Imgbb";
 
 const ChatUi = ({ id }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -63,7 +64,6 @@ const ChatUi = ({ id }) => {
   }, []);
 
   const msgData = [...oldMsgs, ...messages];
-  console.log(msgData, "msg");
 
   const handleSendMessage = async () => {
     try {
@@ -115,39 +115,43 @@ const ChatUi = ({ id }) => {
     const file = event.target.files[0];
 
     if (file) {
-      const reader = new FileReader();
+      let imageUrl = "";
+      if (file) {
+        const { imgurl, error: imageError } = await IMGBBuploadImage(
+          await getImageBase64(file)
+        );
+        if (imageError) {
+          //toast.error("Error", "There was an error while uploading image");
+          return;
+        }
+        imageUrl = imgurl;
+      }
 
-      reader.onloadend = async () => {
-        const base64String = reader.result;
+      socket.emit("sendMessage", {
+        senderid: user.unique_id,
+        receiverid: id,
+        message: newMessage || "",
+        img: imageUrl,
+      });
 
-        const data = {
-          senderid: user.unique_id,
-          receiverid: id,
-          text: newMessage || "",
-          img: base64String,
-        };
-
-        socket.emit("sendMessage", {
-          senderid: user.unique_id,
-          receiverid: id,
-          message: newMessage || "",
-          img: base64String,
-        });
-
-        await axios
-          .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
-            senderId: user.unique_id,
-            receiverId: id,
-            message:
-              messages.length == 0
-                ? [...oldMsgs, data]
-                : [...oldMsgs, ...messages],
-          })
-          .then((res) => console.log("send"))
-          .catch((err) => console.log(err));
-        //  handleSendMessage("", base64String);
+      const data = {
+        senderid: user.unique_id,
+        receiverid: id,
+        text: newMessage || "",
+        img: imageUrl,
       };
-      reader.readAsDataURL(file);
+
+      await axios
+        .post(`${process.env.REACT_APP_BASEURL}/message/addMessage`, {
+          senderId: user.unique_id,
+          receiverId: id,
+          message:
+            messages.length == 0
+              ? [...oldMsgs, data]
+              : [...oldMsgs, ...messages],
+        })
+        .then((res) => console.log("send"))
+        .catch((err) => console.log(err));
     }
   };
 
@@ -159,7 +163,36 @@ const ChatUi = ({ id }) => {
     scrollToBottom();
   }, [messages]);
 
-  console.log(messages);
+  useEffect(() => {
+    const getData = async () => {
+      const options = {
+        method: "POST",
+        url: "http://api.sd-rtn.com/dev/v1/kicking-rule",
+        headers: {
+          Authorization:
+            "Bearer 007eJxTYPg8r1jgzF/TQwuUpNO/TDp0eLHSlMQFEy53HqrUEv1/OeagAkOapUVysmGyUVKigYGJeZKZZXKSkWWimaVBoqWliVGa6ez119IaAhkZdN5vY2FkgEAQn4ehJLW4JD45IzEvLzWHgQEATCIl4A==",
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        data: {
+          appid: "f98cc1c2ba0047b69cb29a690a9942f5",
+          cname: "test_channel",
+          uid: 589517928,
+          ip: "",
+          time: 60,
+          privileges: ["join_channel"],
+        },
+      };
+
+      try {
+        const { data } = await axios.request(options);
+        console.log(data, "data");
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getData();
+  }, []);
 
   return (
     <Box width={"100%"}>
