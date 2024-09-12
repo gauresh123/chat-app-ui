@@ -20,7 +20,7 @@ import {
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import useGetUsers from "../hooks/useGetUsers";
-import { Badge, ListItemButton, Stack, styled } from "@mui/material";
+import { Avatar, Badge, ListItemButton, Stack, styled } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import LogoutIcon from "@mui/icons-material/Logout";
 import useSocketContext from "../context/SocketContext";
@@ -35,6 +35,7 @@ import Group from "./Group";
 import axios from "axios";
 import useGetGroups from "../hooks/useGetGroups";
 import CallIcon from "@mui/icons-material/Call";
+import Profile from "./Profile";
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -61,6 +62,9 @@ export default function Navigation() {
   const [openCreateGroup, setOpenCreateGroup] = React.useState(false);
   const [selectedMembers, setSelectedMembers] = React.useState([]);
   const [showGroups, setShowGroups] = React.useState(false);
+  const [userProfile, setUserProfile] = React.useState(null);
+  const [groupProfile, setGroupProfile] = React.useState(null);
+  const [showUserProfile, setShowUserProfile] = React.useState(false);
   const { groups } = useGetGroups(user?.unique_id);
 
   const handleDrawerToggle = () => {
@@ -109,6 +113,18 @@ export default function Navigation() {
     navigate(`/groupchat/${val.groupid}?group=${val?.groupid}`);
   };
 
+  const handleProfile = () => {
+    if (selectedUser || selectedGroup) {
+      setUserProfile(selectedUser);
+      setGroupProfile(selectedGroup);
+      setShowUserProfile(true);
+    } else {
+      setUserProfile(user);
+      setShowUserProfile(true);
+    }
+  };
+
+  console.log(userProfile, "profile");
   const drawer = (
     <div>
       <DrawerHeader
@@ -216,11 +232,7 @@ export default function Navigation() {
                       justifyContent: "center",
                     }}
                   >
-                    <img
-                      src={process.env.REACT_APP_DEFAULT_IMG}
-                      alt="peofile"
-                      width={25}
-                    />
+                    <img src={val?.profilepicture} alt="peofile" width={25} />
                   </ListItemIcon>
                   <ListItemText
                     primary={val?.username}
@@ -335,7 +347,7 @@ export default function Navigation() {
 
   // const container =
   //   window !== undefined ? () => window().document.body : undefined;
-
+  console.log(selectedUser, "user");
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -368,16 +380,24 @@ export default function Navigation() {
           >
             <MenuIcon />
           </IconButton>
-
-          <Stack direction={"row"} gap={2}>
-            <img
+          <Stack
+            direction={"row"}
+            gap={2}
+            sx={{ cursor: "pointer" }}
+            onClick={handleProfile}
+          >
+            {/* <img
               src={process.env.REACT_APP_DEFAULT_IMG}
               alt="peofile"
               width={30}
               height={30}
               style={{ alignSelf: "center" }}
+            /> */}
+            <Avatar
+              alt="Profile Picture"
+              src={selectedUser?.profilepicture || user.profilepicture}
+              sx={{ width: 40, height: 40 }}
             />
-
             <ListItemText
               sx={{ alignSelf: "center" }}
               primary={
@@ -459,6 +479,11 @@ export default function Navigation() {
         onClose={() => setOpenCreateGroup(false)}
         selectedMembers={selectedMembers}
         setSelectedMembers={setSelectedMembers}
+      />
+      <Profile
+        userProfile={userProfile}
+        openProfile={showUserProfile}
+        onClose={() => setShowUserProfile(false)}
       />
     </Box>
   );

@@ -73,7 +73,13 @@ export default function LoginPage() {
         sx={{ height: "80vh", boxShadow: "0px 0px 10px rgba(0,0,0,0.1)" }}
       >
         {!isXs && (
-          <Grid item xs={12} sm={6} sx={{ backgroundColor: "gray" }}></Grid>
+          <Grid item xs={12} sm={6} sx={{ backgroundColor: "gray" }}>
+            <img
+              src="https://images.pexels.com/photos/230554/pexels-photo-230554.jpeg"
+              width={"100%"}
+              height={"100%"}
+            />
+          </Grid>
         )}
         <Grid item xs={12} sm={6} height={"80vh"}>
           <Stack

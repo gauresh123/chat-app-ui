@@ -37,6 +37,10 @@ const Group = ({
   };
   const handleAddGroup = async () => {
     const selectedids = selectedMembers?.map((val) => val?.unique_id);
+    if (selectedMembers?.length == 0) {
+      alert("Please add some members!");
+      return;
+    }
     try {
       setAddbtnLoading(true);
       const res = await axios.post(
@@ -52,9 +56,16 @@ const Group = ({
     } finally {
       setAddbtnLoading(false);
       alert("success!");
+      setSelectedMembers([]);
+      setSelectedMember("");
       setGroupName("");
       onClose();
     }
+  };
+  const handleDelete = (val) => {
+    setSelectedMembers((prev) =>
+      prev?.filter((value) => value.unique_id !== val.unique_id)
+    );
   };
 
   return (
@@ -117,7 +128,7 @@ const Group = ({
               return (
                 <Stack direction={"row"} justifyContent={"space-between"}>
                   <Typography>{val?.username}</Typography>
-                  <IconButton>
+                  <IconButton onClick={() => handleDelete(val)}>
                     <DeleteIcon />
                   </IconButton>
                 </Stack>

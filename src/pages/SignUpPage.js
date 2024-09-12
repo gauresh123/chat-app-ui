@@ -69,9 +69,6 @@ export default function SignUpPage() {
           boxShadow: "0px 0px 10px rgba(0,0,0,0.1)",
         }}
       >
-        {!isXs && (
-          <Grid item xs={12} sm={6} sx={{ backgroundColor: "gray" }}></Grid>
-        )}
         <Grid item xs={12} sm={6}>
           <Stack
             direction="column"
@@ -211,6 +208,16 @@ export default function SignUpPage() {
             </Button>
           </Stack>
         </Grid>
+
+        {!isXs && (
+          <Grid item xs={12} sm={6} sx={{ backgroundColor: "gray" }}>
+            <img
+              src="https://images.pexels.com/photos/6567369/pexels-photo-6567369.jpeg"
+              width={"100%"}
+              height={"100%"}
+            />
+          </Grid>
+        )}
       </Grid>
     </Container>
   );
