@@ -20,7 +20,7 @@ import {
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import useGetUsers from "../hooks/useGetUsers";
-import { Avatar, Badge, ListItemButton, Stack, styled } from "@mui/material";
+import { Avatar, Badge, ListItemButton, Paper, Popper, Stack, styled } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import LogoutIcon from "@mui/icons-material/Logout";
 import useSocketContext from "../context/SocketContext";
@@ -36,6 +36,8 @@ import axios from "axios";
 import useGetGroups from "../hooks/useGetGroups";
 import CallIcon from "@mui/icons-material/Call";
 import Profile from "./Profile";
+import LinearScaleIcon from '@mui/icons-material/LinearScale';
+
 
 const drawerWidth = 240;
 const DrawerHeader = styled("div")(({ theme }) => ({
@@ -56,6 +58,8 @@ export default function Navigation() {
 
   const [selectedUserId, setselectedUserId] = React.useState(null);
   const [selectedGroupId, setselectedGroupId] = React.useState(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+
 
   //const [selectedMember, setSelectedMember] = React.useState({});
   const [showChats, setShowChats] = React.useState(false);
@@ -78,6 +82,14 @@ export default function Navigation() {
       navigate("/");
     }
   };
+
+  const handleClick = (event) => {
+    setAnchorEl(anchorEl ? null : event.currentTarget);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popper' : undefined;
+
 
   const handleUserClicked = (val) => {
     setselectedUserId(val?.unique_id);
@@ -118,12 +130,14 @@ export default function Navigation() {
       setUserProfile(selectedUser);
       setGroupProfile(selectedGroup);
       setShowUserProfile(true);
-    } else {
-      setUserProfile(user);
-      setShowUserProfile(true);
     }
   };
 
+  const userProfileClicked =()=>{
+    setUserProfile(user);
+      setShowUserProfile(true);
+      setAnchorEl(null)
+  }
   console.log(userProfile, "profile");
   const drawer = (
     <div>
@@ -409,11 +423,11 @@ export default function Navigation() {
           </Stack>
           <Box flexGrow={1} />
 
-          {selectedUser && (
+          {/*selectedUser && (
             <IconButton onClick={() => navigate(`/audiocall/1s`)}>
               <CallIcon />
             </IconButton>
-          )}
+          )*/}
 
           {/* 
           <IconButton>
@@ -427,11 +441,15 @@ export default function Navigation() {
               <NotificationsIcon />
             </Badge>
           </IconButton> */}
-          <IconButton onClick={handleLogOut}>
+          {/* <IconButton onClick={handleLogOut}>
             <LogoutIcon />
-          </IconButton>
+          </IconButton> */}
           <IconButton onClick={() => setOpenCreateGroup(!openCreateGroup)}>
             <AddIcon />
+          </IconButton>
+
+          <IconButton onClick={handleClick}>
+            <LinearScaleIcon />
           </IconButton>
         </Toolbar>
       </AppBar>
@@ -485,6 +503,39 @@ export default function Navigation() {
         openProfile={showUserProfile}
         onClose={() => setShowUserProfile(false)}
       />
+
+      <Popper id={id} open={open} anchorEl={anchorEl} >
+        <Paper elevation={3} style={{ padding: '10px' }}>
+          <Stack direction={"column"} mt={2}>     
+              {selectedUser && (
+            <IconButton onClick={() => navigate(`/audiocall/1s`)}>
+              <CallIcon fontSize="small" sx={{alignSelf:"center", mr:1}}/>
+              
+              <Typography>Voice Call</Typography>
+            </IconButton>
+          )}
+
+            <IconButton onClick={handleLogOut}>
+              <LogoutIcon fontSize="small" sx={{alignSelf:"center", mr:1}}/>
+              
+
+              <Typography>Logout</Typography>
+            </IconButton>
+
+            <IconButton onClick ={userProfileClicked}>
+            <Avatar
+              alt="Profile Picture"
+              src={user.profilepicture}
+              sx={{ width: 30, height: 30,alignSelf:"center",mr:1 }}
+            />
+                          <Typography>Profile</Typography>
+
+</IconButton>
+          </Stack>
+
+        </Paper>
+      </Popper>
+
     </Box>
   );
 }
