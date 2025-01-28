@@ -198,6 +198,7 @@ export default function LoginPage() {
               Password
             </Typography>
             <TextField
+              type="password"
               fullWidth
               placeholder="Enter your company email"
               variant="outlined"
