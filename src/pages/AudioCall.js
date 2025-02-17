@@ -26,7 +26,7 @@ export const AudioCall = () => {
   const [appId, setAppId] = useState("f98cc1c2ba0047b69cb29a690a9942f5");
   const [channel, setChannel] = useState("test_channel");
   const [token, setToken] = useState(
-    "007eJxTYHjn8W/vgjVWLVp/N/3KqlDx2uPFLlPtfExPtaV26uHZj78pMKRZWiQnGyYbJSUaGJiYJ5lZJicZWSaaWRokWlqaGKWZVpXfTGsIZGQ48fU0EyMDBIL4PAwlqcUl8ckZiXl5qTkMDAAJxCVY"
+    "007eJxTYJCMOcg42e2j3bbb39QE/91IFyh2Wr/U9fq7iNuPfjW6OuxUYEiztEhONkw2Sko0MDAxTzKzTE4yskw0szRItLQ0MUozXWS9Ob0hkJHhz4KXDIxQCOLzMJSkFpcoJGck5uWl5jAwAAD8cyUb"
   );
 
   useJoin(
