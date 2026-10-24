@@ -46,14 +46,19 @@ export default function LoginPage() {
       })
       .then((res) => {
         setLocalStorage("user", res.data);
-      })
-      .catch((err) => console.log(err))
-      .finally(() => {
-        setLoading(false);
         alert("Signin success!");
         setTimeout(() => {
           navigate("/home");
         }, 10);
+
+      })
+      .catch((err) => {
+        alert("Something Went Wrong!");
+      })
+      .finally(() => {
+            
+        
+        setLoading(false);
       });
   };
 
@@ -221,9 +226,9 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               {...(error.password &&
                 !password && {
-                  error: true,
-                  helperText: error.password,
-                })}
+                error: true,
+                helperText: error.password,
+              })}
             />
             <Button
               fullWidth
