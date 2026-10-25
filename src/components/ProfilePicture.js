@@ -1,5 +1,4 @@
 import { Dialog, DialogContent } from "@mui/material";
-import React from "react";
 
 const ProfilePicture = ({ open, onClose, picture }) => {
   return (

@@ -12,7 +12,6 @@ import CallIcon from "@mui/icons-material/Call";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import { IconButton, Stack } from "@mui/material";
 
-import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";

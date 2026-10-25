@@ -1,6 +1,5 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { io } from "socket.io-client";
-import { getLocalStorage } from "../constants/LocalStorageData";
+import { createContext, useContext, useState } from "react";
+
 
 const SocketContext = createContext();
 const SocketContextProvider = ({ children }) => {

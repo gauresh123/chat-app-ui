@@ -1,5 +1,4 @@
 import { Box } from "@mui/material";
-import React from "react";
 import Navigation from "./Navigation";
 import ChatAppBar from "./AppBar";
 

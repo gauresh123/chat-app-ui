@@ -4,7 +4,6 @@ import Base from "../components/Base";
 import { io } from "socket.io-client";
 import useSocketContext from "../context/SocketContext";
 import { getLocalStorage } from "../constants/LocalStorageData";
-import axios from "axios";
 
 const HomePage = () => {
   const { setMessages, messages } = useSocketContext();

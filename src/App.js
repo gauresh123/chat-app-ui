@@ -1,4 +1,4 @@
-import React from "react";
+
 import Router from "./Route";
 import { SocketContextProvider } from "./context/SocketContext";
 import "./App.css";

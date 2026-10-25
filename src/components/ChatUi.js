@@ -5,7 +5,6 @@ import {
   List,
   ListItem,
   TextField,
-  Button,
   Typography,
   IconButton,
   InputAdornment,
@@ -13,7 +12,6 @@ import {
 import SendIcon from "@mui/icons-material/Send";
 import { io } from "socket.io-client";
 import {
-  clearLocalStorage,
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import useSocketContext from "../context/SocketContext";

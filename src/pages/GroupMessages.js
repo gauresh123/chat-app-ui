@@ -1,10 +1,7 @@
-import { Container, TextField, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import { Container } from "@mui/material";
 import Base from "../components/Base";
-import ChatUi from "../components/ChatUi";
 import { io } from "socket.io-client";
 import {
-  clearLocalStorage,
   getLocalStorage,
 } from "../constants/LocalStorageData";
 import { useParams } from "react-router-dom";

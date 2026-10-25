@@ -7,12 +7,10 @@ import {
   Stack,
   useMediaQuery,
   useTheme,
-  Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import axios from "axios";
-import { io } from "socket.io-client";
 
 export default function SignUpPage() {
   const theme = useTheme();
