@@ -102,6 +102,7 @@ const ChatUi = ({ id }) => {
       //
     } finally {
       setNewMessage("");
+      window.location.reload();
     }
   };
 
