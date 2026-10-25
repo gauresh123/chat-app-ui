@@ -36,8 +36,14 @@ const ChatUi = ({ id }) => {
   );
 
   useEffect(() => {
+    
+    
     socket.on("connect", () => {
       setSocketId(socket.id);
+      setInterval(() => {
+      window.location.reload();
+    }, 5000);
+    
     });
     socket.on("receiveMessage", (messageData) => {
       setMessages((prevMessages) => [...prevMessages, messageData]);
@@ -102,7 +108,7 @@ const ChatUi = ({ id }) => {
       //
     } finally {
       setNewMessage("");
-      window.location.reload();
+     // window.location.reload();
     }
   };
 
